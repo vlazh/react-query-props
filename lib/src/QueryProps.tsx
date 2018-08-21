@@ -1,14 +1,16 @@
 import React from 'react';
 import { Location } from 'history';
-import { match as Match } from 'react-router';
+import { match as Match, RouteComponentProps, Omit } from 'react-router';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 import qs from 'qs';
 
-export interface Props<Q = any> {
-  location: Location;
-  match?: Match<any>;
+interface InjectedProps<Q = any> {
   query: Q;
 }
+
+export interface Props extends RouteComponentProps<any>, InjectedProps {}
+
+type EjectedProps<P extends Props> = Omit<P, keyof InjectedProps>;
 
 interface QueryMapperClass<P> {
   wrappedComponent: React.ComponentType<P>;
@@ -25,7 +27,9 @@ const defaultOptions: qs.IParseOptions = { ignoreQueryPrefix: true };
  * The higher-order component to map location.search to props.query plain object.
  */
 export default function queryProps<P extends Props>(options: Options = {}) {
-  return <C extends React.ComponentClass<P>>(Component: C): C => {
+  return <C extends React.ComponentType<P>>(
+    Component: C
+  ): React.ComponentType<EjectedProps<P>> & QueryMapperClass<EjectedProps<P>> => {
     class QueryMapper extends React.Component<P> {
       static displayName = `${queryProps.name}(${Component.displayName ||
         Component.name ||
@@ -34,12 +38,12 @@ export default function queryProps<P extends Props>(options: Options = {}) {
 
       static wrappedComponent: React.ComponentType<P> = Component;
 
-      private static parseLocation(location: Location, match?: Match<any>) {
+      private static parseLocation(location: Location, match: Match<any>) {
         const { includeMatchParams, transform, ...rest } = options;
 
         const queryObject = {
           ...qs.parse(location.search, { ...defaultOptions, ...rest }),
-          ...(includeMatchParams && match ? match.params : {}),
+          ...(includeMatchParams ? match.params : {}),
         };
 
         return transform ? transform(queryObject) : queryObject;
@@ -55,33 +59,34 @@ export default function queryProps<P extends Props>(options: Options = {}) {
 
       state = QueryMapper.initState(this.props);
 
-      componentWillReceiveProps(nextProps: P) {
+      componentWillReceiveProps({ location, match }: P) {
         const { locationPath, queryString } = this.state;
 
-        if (
-          locationPath === nextProps.location.pathname &&
-          queryString === nextProps.location.search
-        ) {
+        if (locationPath === location.pathname && queryString === location.search) {
           return;
         }
 
         this.setState({
-          locationPath: nextProps.location.pathname,
-          queryString: nextProps.location.search,
-          queryObject: QueryMapper.parseLocation(nextProps.location, nextProps.match),
+          locationPath: location.pathname,
+          queryString: location.search,
+          queryObject: QueryMapper.parseLocation(location, match),
         });
       }
 
       render() {
-        const { query: _, ...rest } = this.props as any; // https://github.com/Microsoft/TypeScript/issues/16780
         const { queryObject } = this.state;
-        return <Component query={queryObject} {...rest} />;
+        return React.createElement<P>(Component, {
+          query: queryObject,
+          ...(this.props as any), // https://github.com/Microsoft/TypeScript/issues/16780
+        });
       }
     }
 
     // Static fields from component should be visible on the generated QueryMapper
     hoistNonReactStatics(QueryMapper, Component);
 
-    return QueryMapper as C & QueryMapperClass<P> & typeof QueryMapper;
+    return QueryMapper as React.ComponentType<EjectedProps<P>> &
+      typeof QueryMapper &
+      QueryMapperClass<EjectedProps<P>>;
   };
 }
