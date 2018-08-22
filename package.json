@@ -63,7 +63,7 @@
     "@types/react-router": "*",
     "history": "*",
     "hoist-non-react-statics": "*",
-    "qs": "^6.x"
+    "qs": "*"
   },
   "peerDependencies": {
     "react": ">= 16.4.x",
