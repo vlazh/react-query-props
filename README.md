@@ -33,7 +33,7 @@ class MyComponent extends React.Component {
 
 ## Options
 
-HOC can accept an options object:
+**queryProps** can accept an options object:
 ```js
 function transformer({ param1, param2, ...rest } = {}) {
   return {
