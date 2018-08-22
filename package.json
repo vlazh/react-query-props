@@ -67,6 +67,6 @@
   },
   "peerDependencies": {
     "react": ">= 16.4.x",
-    "react-router": "=> 4.3.x"
+    "react-router": ">= 4.3.x"
   }
 }
