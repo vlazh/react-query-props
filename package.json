@@ -62,7 +62,7 @@
     "@types/react": "*",
     "@types/react-router": "*",
     "history": "*",
-    "hoist-non-react-statics": "*",
+    "hoist-non-react-statics": "^2.x",
     "qs": "*"
   },
   "peerDependencies": {
