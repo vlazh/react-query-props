@@ -3,16 +3,17 @@ import { Location } from 'history';
 import { match as Match, RouteComponentProps, Omit } from 'react-router';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 import qs from 'qs';
+import { QueryObject } from './utils';
 
-interface InjectedProps<Q = any> {
+interface InjectedQueryProps<Q extends QueryObject = {}> {
   query: Q;
 }
 
-export interface Props extends RouteComponentProps<any>, InjectedProps {}
+export interface QueryProps extends RouteComponentProps<any>, InjectedQueryProps {}
 
-type EjectedProps<P extends Props> = Omit<P, keyof InjectedProps>;
+type EjectedProps<P extends InjectedQueryProps> = Omit<P, keyof InjectedQueryProps>;
 
-interface QueryMapperClass<P> {
+export interface IWrappedComponent<P> {
   wrappedComponent: React.ComponentType<P>;
 }
 
@@ -21,15 +22,15 @@ export type Options = qs.IParseOptions & {
   transform?: (queryObject: Record<string, any>) => any;
 };
 
-const defaultOptions: qs.IParseOptions = { ignoreQueryPrefix: true };
+export const defaultOptions: qs.IParseOptions = { ignoreQueryPrefix: true };
 
 /**
  * The higher-order component to map location.search to props.query plain object.
  */
-export default function queryProps<P extends Props>(options: Options = {}) {
+export default function queryProps<P extends QueryProps>(options: Options = {}) {
   return <C extends React.ComponentType<P>>(
     Component: C
-  ): React.ComponentType<EjectedProps<P>> & QueryMapperClass<EjectedProps<P>> => {
+  ): React.ComponentClass<EjectedProps<P>> & IWrappedComponent<EjectedProps<P>> => {
     class QueryMapper extends React.Component<P> {
       static displayName = `${queryProps.name}(${Component.displayName ||
         Component.name ||
@@ -85,8 +86,17 @@ export default function queryProps<P extends Props>(options: Options = {}) {
     // Static fields from component should be visible on the generated QueryMapper
     hoistNonReactStatics(QueryMapper, Component);
 
-    return QueryMapper as React.ComponentType<EjectedProps<P>> &
+    return QueryMapper as React.ComponentClass<EjectedProps<P>> &
       typeof QueryMapper &
-      QueryMapperClass<EjectedProps<P>>;
+      IWrappedComponent<EjectedProps<P>>;
   };
 }
+
+// interface MyProps {
+//   query: any;
+//   prop1: any;
+// }
+// type RoutedProps = MyProps & RouteComponentProps<any>;
+// const F = queryProps()((props: RoutedProps) => <div>{props.children}</div>);
+// const F = queryProps<RoutedProps>()(props => <div>{props.children}</div>);
+// const f = <F />;
