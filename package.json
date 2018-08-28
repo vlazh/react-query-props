@@ -31,6 +31,7 @@
     "clean": "rimraf dist/*",
     "build": "npm run clean && tsc --project ./tsconfig.json",
     "build-to-tabix": "npm run clean && tsc --project ./tsconfig.json --outDir '../tabixio/tabix/node_modules/react-query-props/dist/' && copyfiles package.json '../tabixio/tabix/node_modules/react-query-props/'",
+    "build-to-project-langlearn": "npm run clean && tsc --project ./tsconfig.json --outDir '../project-langlearn/node_modules/react-query-props/dist/' && copyfiles package.json '../project-langlearn/node_modules/react-query-props/'",
     "prepublishOnly": "npm run clean && npm run build",
     "patch-publish": "npm version patch && npm publish --access public && git push --follow-tags",
     "minor-publish": "npm version minor && npm publish --access public && git push --follow-tags",
@@ -38,8 +39,8 @@
   },
   "devDependencies": {
     "@types/hoist-non-react-statics": "^3.0.1",
-    "@vzh/configs": "^2.0.0",
-    "babel-eslint": "^8.2.6",
+    "@vzh/configs": "^2.0.1",
+    "babel-eslint": "^9.0.0",
     "copyfiles": "^2.0.0",
     "eslint": "^5.3.0",
     "eslint-config-airbnb": "^17.1.0",
@@ -62,7 +63,7 @@
     "@types/react": "*",
     "@types/react-router": "*",
     "history": "*",
-    "hoist-non-react-statics": "^2.x",
+    "hoist-non-react-statics": "^3.0.1",
     "qs": "*"
   },
   "peerDependencies": {
