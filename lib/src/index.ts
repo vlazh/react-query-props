@@ -1,3 +1,3 @@
-export { default } from './QueryProps';
-export * from './QueryProps';
+export { default } from './queryToProps';
+export * from './queryToProps';
 export * from './utils';

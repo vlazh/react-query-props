@@ -1,18 +1,18 @@
 {
-  "name": "react-query-props",
+  "name": "react-router-query-to-props",
   "version": "0.4.0",
   "description": "React higher-order component which provide location query as props to target component",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "author": "Vladimir Zhukov",
   "license": "MIT",
-  "homepage": "https://github.com/vlazh/react-query-props",
+  "homepage": "https://github.com/vlazh/react-router-query-to-props",
   "repository": {
     "type": "git",
-    "url": "https://github.com/vlazh/react-query-props"
+    "url": "https://github.com/vlazh/react-router-query-to-props"
   },
   "bugs": {
-    "url": "https://github.com/vlazh/react-query-props/issues"
+    "url": "https://github.com/vlazh/react-router-query-to-props/issues"
   },
   "contributors": [
     {
@@ -22,16 +22,18 @@
   ],
   "keywords": [
     "react",
-    "location",
+    "react-router",
     "query",
     "props",
+    "location",
+    "search",
     "HOC"
   ],
   "scripts": {
     "clean": "rimraf dist/*",
     "build": "npm run clean && tsc --project ./tsconfig.json",
-    "build-to-tabix": "npm run clean && tsc --project ./tsconfig.json --outDir '../tabixio/tabix/node_modules/react-query-props/dist/' && copyfiles package.json '../tabixio/tabix/node_modules/react-query-props/'",
-    "build-to-project-langlearn": "npm run clean && tsc --project ./tsconfig.json --outDir '../project-langlearn/node_modules/react-query-props/dist/' && copyfiles package.json '../project-langlearn/node_modules/react-query-props/'",
+    "build-to-tabix": "npm run clean && tsc --project ./tsconfig.json --outDir '../tabixio/tabix/node_modules/react-router-query-to-props/dist/' && copyfiles package.json '../tabixio/tabix/node_modules/react-router-query-to-props/'",
+    "build-to-project-langlearn": "npm run clean && tsc --project ./tsconfig.json --outDir '../project-langlearn/node_modules/react-router-query-to-props/dist/' && copyfiles package.json '../project-langlearn/node_modules/react-router-query-to-props/'",
     "prepublishOnly": "npm run clean && npm run build",
     "patch-publish": "npm version patch && npm publish --access public && git push --follow-tags",
     "minor-publish": "npm version minor && npm publish --access public && git push --follow-tags",
@@ -39,29 +41,29 @@
   },
   "devDependencies": {
     "@types/hoist-non-react-statics": "^3.0.1",
-    "@vzh/configs": "^2.0.1",
-    "babel-eslint": "^9.0.0",
-    "copyfiles": "^2.0.0",
-    "eslint": "^5.3.0",
+    "@vzh/configs": "^2.6.1",
+    "babel-eslint": "^10.0.1",
+    "copyfiles": "^2.1.0",
+    "eslint": "^5.6.0",
     "eslint-config-airbnb": "^17.1.0",
-    "eslint-config-prettier": "^3.0.1",
-    "eslint-plugin-css-modules": "^2.7.5",
+    "eslint-config-prettier": "^3.1.0",
+    "eslint-plugin-css-modules": "^2.9.1",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jsx-a11y": "^6.1.1",
-    "eslint-plugin-prettier": "^2.6.1",
+    "eslint-plugin-prettier": "^2.7.0",
     "eslint-plugin-react": "^7.11.0",
     "eslint-plugin-typescript": "^0.12.0",
-    "prettier": "^1.14.2",
-    "react": "^16.4.2",
+    "prettier": "^1.14.3",
+    "react": "^16.5.2",
     "react-router": "^4.3.1",
     "rimraf": "^2.6.1",
-    "typescript": "^3.0.1",
-    "typescript-eslint-parser": "^18.0.0"
+    "typescript": "^3.1.1",
+    "typescript-eslint-parser": "^19.0.1"
   },
   "dependencies": {
     "@types/qs": "*",
-    "@types/react": "*",
-    "@types/react-router": "*",
+    "@types/react": "16.4.14",
+    "@types/react-router": "4.0.31",
     "history": "*",
     "hoist-non-react-statics": "^3.0.1",
     "qs": "*"

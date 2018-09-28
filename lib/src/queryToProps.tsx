@@ -3,36 +3,40 @@ import { Location } from 'history';
 import { match as Match, RouteComponentProps, Omit } from 'react-router';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 import qs from 'qs';
-import { QueryObject } from './utils';
+import { QueryObject, parserDefaultOptions } from './utils';
 
-interface InjectedQueryProps<Q extends QueryObject = {}> {
+interface InjectedQueryMapperProps<Q extends QueryObject = {}> {
   query: Q;
 }
 
-export interface QueryProps extends RouteComponentProps<any>, InjectedQueryProps {}
+export interface QueryMapperProps extends RouteComponentProps<any>, InjectedQueryMapperProps {}
 
-type EjectedProps<P extends InjectedQueryProps> = Omit<P, keyof InjectedQueryProps>;
+type EjectedProps<P extends InjectedQueryMapperProps> = Omit<P, keyof InjectedQueryMapperProps>;
 
-export interface IWrappedComponent<P> {
+interface State<Q extends QueryObject = {}> {
+  locationPath: string;
+  queryString: string;
+  queryObject: Q;
+}
+
+export interface WrappedComponent<P> {
   wrappedComponent: React.ComponentType<P>;
 }
 
 export type Options = qs.IParseOptions & {
   includeMatchParams?: boolean;
-  transform?: (queryObject: Record<string, any>) => any;
+  transform?: (queryObject: QueryObject) => any;
 };
-
-export const defaultOptions: qs.IParseOptions = { ignoreQueryPrefix: true };
 
 /**
  * The higher-order component to map location.search to props.query plain object.
  */
-export default function queryProps<P extends QueryProps>(options: Options = {}) {
+export default function queryToProps<P extends QueryMapperProps>(options: Options = {}) {
   return <C extends React.ComponentType<P>>(
     Component: C
-  ): React.ComponentClass<EjectedProps<P>> & IWrappedComponent<EjectedProps<P>> => {
-    class QueryMapper extends React.Component<P> {
-      static displayName = `${queryProps.name}(${Component.displayName ||
+  ): React.ComponentClass<EjectedProps<P>> & WrappedComponent<EjectedProps<P>> => {
+    class QueryMapper extends React.Component<P, State> {
+      static displayName = `${queryToProps.name}(${Component.displayName ||
         Component.name ||
         (Component.constructor && Component.constructor.name) ||
         'Unknown'})`;
@@ -43,35 +47,26 @@ export default function queryProps<P extends QueryProps>(options: Options = {}) 
         const { includeMatchParams, transform, ...rest } = options;
 
         const queryObject = {
-          ...qs.parse(location.search, { ...defaultOptions, ...rest }),
+          ...qs.parse(location.search, { ...parserDefaultOptions, ...rest }),
           ...(includeMatchParams ? match.params : {}),
         };
 
         return transform ? transform(queryObject) : queryObject;
       }
 
-      private static initState({ location, match }: P) {
+      static getDerivedStateFromProps(nextProps: Readonly<P>, prevState: State) {
+        const { location, match } = nextProps;
+        const { locationPath, queryString } = prevState;
+
+        if (locationPath === location.pathname && queryString === location.search) {
+          return null;
+        }
+
         return {
           locationPath: location.pathname,
           queryString: location.search,
           queryObject: this.parseLocation(location, match),
         };
-      }
-
-      state = QueryMapper.initState(this.props);
-
-      componentWillReceiveProps({ location, match }: P) {
-        const { locationPath, queryString } = this.state;
-
-        if (locationPath === location.pathname && queryString === location.search) {
-          return;
-        }
-
-        this.setState({
-          locationPath: location.pathname,
-          queryString: location.search,
-          queryObject: QueryMapper.parseLocation(location, match),
-        });
       }
 
       render() {
@@ -84,11 +79,11 @@ export default function queryProps<P extends QueryProps>(options: Options = {}) 
     }
 
     // Static fields from component should be visible on the generated QueryMapper
-    hoistNonReactStatics(QueryMapper, Component);
+    hoistNonReactStatics<React.ComponentClass<P>, React.ComponentType<P>>(QueryMapper, Component);
 
     return QueryMapper as React.ComponentClass<EjectedProps<P>> &
       typeof QueryMapper &
-      IWrappedComponent<EjectedProps<P>>;
+      WrappedComponent<EjectedProps<P>>;
   };
 }
 
