@@ -1,9 +1,26 @@
-import { History } from 'history';
+import { History, Location } from 'history';
+import { match as Match } from 'react-router';
 import qs from 'qs';
 
 export type QueryObject = Record<string, any>;
 
+export type Options<Q> = qs.IParseOptions & {
+  includeMatchParams?: boolean;
+  transform?: (queryObject: QueryObject) => Q;
+};
+
 export const parserDefaultOptions: qs.IParseOptions = { ignoreQueryPrefix: true };
+
+export function parseLocation<Q>(location: Location, match: Match<any>, options: Options<Q>): Q {
+  const { includeMatchParams, transform, ...rest } = options;
+
+  const queryObject: QueryObject = {
+    ...qs.parse(location.search, { ...parserDefaultOptions, ...rest }),
+    ...(includeMatchParams ? match.params : {}),
+  };
+
+  return transform ? transform(queryObject) : (queryObject as Q);
+}
 
 export function mergeQuery(
   history: History,

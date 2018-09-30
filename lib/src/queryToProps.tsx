@@ -1,19 +1,22 @@
 import React from 'react';
-import { Location } from 'history';
-import { match as Match, RouteComponentProps, Omit } from 'react-router';
+import { RouteComponentProps, Omit } from 'react-router';
 import hoistNonReactStatics from 'hoist-non-react-statics';
-import qs from 'qs';
-import { QueryObject, parserDefaultOptions } from './utils';
+import { QueryObject, Options, parseLocation } from './utils';
 
-interface InjectedQueryMapperProps<Q extends QueryObject = {}> {
+interface InjectedQueryMapperProps<Q extends QueryObject> {
   query: Q;
 }
 
-export interface QueryMapperProps extends RouteComponentProps<any>, InjectedQueryMapperProps {}
+export interface QueryMapperProps<Q extends QueryObject>
+  extends RouteComponentProps<any>,
+    InjectedQueryMapperProps<Q> {}
 
-type EjectedProps<P extends InjectedQueryMapperProps> = Omit<P, keyof InjectedQueryMapperProps>;
+type EjectedProps<P extends InjectedQueryMapperProps<any>> = Omit<
+  P,
+  keyof InjectedQueryMapperProps<any>
+>;
 
-interface State<Q extends QueryObject = {}> {
+interface State<Q extends QueryObject> {
   locationPath: string;
   queryString: string;
   queryObject: Q;
@@ -23,19 +26,16 @@ export interface WrappedComponent<P> {
   wrappedComponent: React.ComponentType<P>;
 }
 
-export type Options = qs.IParseOptions & {
-  includeMatchParams?: boolean;
-  transform?: (queryObject: QueryObject) => any;
-};
-
 /**
  * The higher-order component to map location.search to props.query plain object.
  */
-export default function queryToProps<P extends QueryMapperProps>(options: Options = {}) {
+export default function queryToProps<P extends QueryMapperProps<Q>, Q extends QueryObject = {}>(
+  options: Options<Q> = {}
+) {
   return <C extends React.ComponentType<P>>(
     Component: C
   ): React.ComponentClass<EjectedProps<P>> & WrappedComponent<EjectedProps<P>> => {
-    class QueryMapper extends React.Component<P, State> {
+    class QueryMapper extends React.Component<P, State<Q>> {
       static displayName = `${queryToProps.name}(${Component.displayName ||
         Component.name ||
         (Component.constructor && Component.constructor.name) ||
@@ -43,18 +43,7 @@ export default function queryToProps<P extends QueryMapperProps>(options: Option
 
       static wrappedComponent: React.ComponentType<P> = Component;
 
-      private static parseLocation(location: Location, match: Match<any>) {
-        const { includeMatchParams, transform, ...rest } = options;
-
-        const queryObject = {
-          ...qs.parse(location.search, { ...parserDefaultOptions, ...rest }),
-          ...(includeMatchParams ? match.params : {}),
-        };
-
-        return transform ? transform(queryObject) : queryObject;
-      }
-
-      static getDerivedStateFromProps(nextProps: Readonly<P>, prevState: State) {
+      static getDerivedStateFromProps(nextProps: Readonly<P>, prevState: State<Q>) {
         const { location, match } = nextProps;
         const { locationPath, queryString } = prevState;
 
@@ -65,9 +54,15 @@ export default function queryToProps<P extends QueryMapperProps>(options: Option
         return {
           locationPath: location.pathname,
           queryString: location.search,
-          queryObject: this.parseLocation(location, match),
+          queryObject: parseLocation(location, match, options),
         };
       }
+
+      state: State<Q> = {
+        locationPath: '',
+        queryString: '',
+        queryObject: {} as Q,
+      };
 
       render() {
         const { queryObject } = this.state;
