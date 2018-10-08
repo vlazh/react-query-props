@@ -1,13 +1,13 @@
-# react-query-props [![npm package](https://img.shields.io/npm/v/react-query-props.svg?style=flat-square)](https://www.npmjs.org/package/react-query-props)
+# react-router-query-to-props [![npm package](https://img.shields.io/npm/v/react-router-query-to-props.svg?style=flat-square)](https://www.npmjs.org/package/react-router-query-to-props)
 
 React higher-order component which provide location query as props to target component. For parsing location query it uses [qs](https://github.com/ljharb/qs).
 
 ## Installation
 
 ```sh
-yarn add react react-router react-query-props
+yarn add react react-router react-router-query-to-props
 # or
-npm install --save react react-router react-query-props
+npm install --save react react-router react-router-query-to-props
 ```
 
 ## Usage
@@ -16,7 +16,7 @@ npm install --save react react-router react-query-props
 // location: http://localhost:8008/myapp?param1=1&param2=2
 
 import React from 'react';
-import queryProps from 'react-query-props';
+import queryProps from 'react-router-query-to-props';
 
 @queryProps()
 class MyComponent extends React.Component {
