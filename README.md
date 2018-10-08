@@ -16,9 +16,9 @@ npm install --save react react-router react-router-query-to-props
 // location: http://localhost:8008/myapp?param1=1&param2=2
 
 import React from 'react';
-import queryProps from 'react-router-query-to-props';
+import queryToProps from 'react-router-query-to-props';
 
-@queryProps()
+@queryToProps()
 class MyComponent extends React.Component {
   render() {
     // You can access to location query through this.props.query.
@@ -33,7 +33,7 @@ class MyComponent extends React.Component {
 
 ## Options
 
-**queryProps** can accept an options object:
+**queryToProps** can accept an options object:
 ```js
 function transformer({ param1, param2, ...rest } = {}) {
   return {
@@ -43,7 +43,7 @@ function transformer({ param1, param2, ...rest } = {}) {
   };
 }
 
-@queryProps({ includeMatchParams: true, transform: transformer })
+@queryToProps({ includeMatchParams: true, transform: transformer })
 class MyComponent extends React.Component {
 ...
 ```
