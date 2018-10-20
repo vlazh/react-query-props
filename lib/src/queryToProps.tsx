@@ -74,7 +74,7 @@ export default function queryToProps<P extends QueryMapperProps<Q>, Q extends Qu
     }
 
     // Static fields from component should be visible on the generated QueryMapper
-    hoistNonReactStatics<React.ComponentClass<P>, React.ComponentType<P>>(QueryMapper, Component);
+    hoistNonReactStatics(QueryMapper, Component);
 
     return QueryMapper as React.ComponentClass<EjectedProps<P>> &
       typeof QueryMapper &
