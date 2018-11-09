@@ -64,7 +64,7 @@
   "dependencies": {
     "@types/qs": "*",
     "@types/react": "*",
-    "@types/react-router": "4.4.0",
+    "@types/react-router": "*",
     "qs": "*"
   },
   "peerDependencies": {
